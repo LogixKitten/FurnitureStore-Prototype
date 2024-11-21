@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Furniture Store</title>    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i&amp;display=swap">    
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/styles.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body data-authenticated="{{ current_user.is_authenticated }}">
+    <div class="wrapper">
+        <header style="margin-bottom: 80px;">
+
+            <!-- Accessibility Options Modal -->
+            <div class="modal fade" id="accessibilityModal" tabindex="-1" aria-labelledby="accessibilityModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="accessibilityModalLabel">Accessibility Options</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="high-contrast-checkbox">
+                                <label class="form-check-label" for="high-contrast-checkbox">High Contrast (Dark Mode)</label>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="textSize">Text Size:</label><br>
+                                <input type="radio" name="text-size" value="regular" id="textSizeRegular" checked>
+                                <label for="textSizeRegular">Regular</label><br>
+                                <input type="radio" name="text-size" value="larger" id="textSizeLarger">
+                                <label for="textSizeLarger">Larger</label>
+                            </div>
+                        </div>                    
+                    </div>
+                </div>
+            </div>
+
+            <nav class="navbar navbar-expand-lg fixed-top bg-dark navbar-custom navbar-dark">
+                <div class="container-fluid">
+                    {% if current_user.is_authenticated %}
+                        <a class="navbar-brand" href="{{ url_for('browse') }}">Furniture Shop</a>
+                    {% else %}
+                        <a class="navbar-brand" href="{{ url_for('home') }}">Furniture Shop</a>
+                    {% endif %}                    
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                        <ul class="navbar-nav ml-auto">
+                            {% if current_user.is_authenticated %}
+                                <li class="nav-item">
+                                    <p class="text-white mb-3"> Welcome, {{ current_user.username }}! </p>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link" id="accessibility-btn" data-bs-toggle="modal" data-bs-target="#accessibilityModal">Accessibility Options</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('browse') }}">Browse</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('account') }}">Account</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('cart') }}">
+                                        <span class="cart-icon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                            <span class="cart-count">{{ cart_count }}</span>
+                                        </span>
+                                    </a>
+                                </li>                                                                
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('signup') }}">Sign Up</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('login') }}">Log In</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <section class="content container mt-5">
+            <h1 class="text-center mb-4">Browse Products</h1>
+            <div class="d-flex justify-content-center align-items-center mb-3 gap-3">
+
+                <!-- Sort Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sort
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                        <li><a class="dropdown-item sort-option" href="#" data-sort="name-asc">Name Ascending</a></li>
+                        <li><a class="dropdown-item sort-option" href="#" data-sort="name-desc">Name Descending</a></li>
+                        <li><a class="dropdown-item sort-option" href="#" data-sort="price-asc">Price Ascending</a></li>
+                        <li><a class="dropdown-item sort-option" href="#" data-sort="price-desc">Price Descending</a></li>
+                    </ul>
+                </div>
+
+                <!-- Type Filter Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="typeFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Type
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="typeFilterDropdown">
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input type-filter" type="checkbox" value="Sofa" id="sofaFilter" checked>
+                                <label class="form-check-label" for="sofaFilter">Sofa</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input type-filter" type="checkbox" value="Dining Table" id="diningTableFilter" checked>
+                                <label class="form-check-label" for="diningTableFilter">Dining Table</label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Style Filter Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="styleFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Style
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="styleFilterDropdown">
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input style-filter" type="checkbox" value="Mid-Century" id="midCenturyFilter" checked>
+                                <label class="form-check-label" for="midCenturyFilter">Mid-Century</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input style-filter" type="checkbox" value="Modern" id="modernFilter" checked>
+                                <label class="form-check-label" for="modernFilter">Modern</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input style-filter" type="checkbox" value="Rustic" id="rusticFilter" checked>
+                                <label class="form-check-label" for="rusticFilter">Rustic</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input style-filter" type="checkbox" value="Scandinavian" id="scandinavianFilter" checked>
+                                <label class="form-check-label" for="scandinavianFilter">Scandinavian</label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Color Filter Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="colorFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Color
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="colorFilterDropdown">
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Black" id="blackColorFilter" checked>
+                                <label class="form-check-label" for="blackColorFilter">Black</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Blue" id="blueColorFilter" checked>
+                                <label class="form-check-label" for="blueColorFilter">Blue</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Brown" id="brownColorFilter" checked>
+                                <label class="form-check-label" for="brownColorFilter">Brown</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Glass" id="glassColorFilter" checked>
+                                <label class="form-check-label" for="glassColorFilter">Glass</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Gray" id="grayColorFilter" checked>
+                                <label class="form-check-label" for="grayColorFilter">Gray</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Green" id="greenColorFilter" checked>
+                                <label class="form-check-label" for="greenColorFilter">Green</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Lavender" id="lavenderColorFilter" checked>
+                                <label class="form-check-label" for="lavenderColorFilter">Lavender</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Multi" id="multiColorFilter" checked>
+                                <label class="form-check-label" for="multiColorFilter">Multi</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Pink" id="pinkColorFilter" checked>
+                                <label class="form-check-label" for="pinkColorFilter">Pink</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Red" id="redColorFilter" checked>
+                                <label class="form-check-label" for="redColorFilter">Red</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Tan" id="tanColorFilter" checked>
+                                <label class="form-check-label" for="tanColorFilter">Tan</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="White" id="whiteColorFilter" checked>
+                                <label class="form-check-label" for="whiteColorFilter">White</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input color-filter" type="checkbox" value="Yellow" id="yellowColorFilter" checked>
+                                <label class="form-check-label" for="yellowColorFilter">Yellow</label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <!-- Loop through all unique products -->
+                {% for product in products %}
+                <div class="col product-item" data-type="{{ product['category'] }}" data-style="{{ product['style'] }}" data-colors="{{ product['variants'] | map(attribute='color') | map('lower') | join(',') }}">
+                    <div class="card h-100" id="card-{{ product['id'] }}">
+                        <!-- Display the main product image -->
+                        <img src="{{ product['image_path'] }}" class="card-img-top" alt="{{ product['name'] }}" id="product-image-{{ product['id'] }}">
+                        <div class="card-body">
+                            <!-- Product name and description -->
+                            <h5 class="card-title" id="product-name-{{ product['id'] }}">{{ product['name'] }}</h5>
+                            <p class="card-text text-muted" id="product-description-{{ product['id'] }}">{{ product['description'] }}</p>
+                            <p class="fw-bold" id="product-price-{{ product['id'] }}">${{ product['price'] }}</p>
+
+                            <!-- Display color swatches for all variants -->
+                            <div class="available-colors" id="swatches-{{ product['id'] }}">
+                                {% for variant in product['variants'] %}
+                                <img src="{{ variant['image_path'] }}"
+                                    class="color-swatch"
+                                    data-id="{{ product['id'] }}"
+                                    data-variant-id="{{ variant['variant_id'] }}"
+                                    data-image="{{ variant['image_path'] }}"
+                                    data-name="{{ variant['name'] }} - {{ variant['color'] }}"
+                                    data-price="{{ product['price'] }}"
+                                    data-description="{{ product['description'] }}"
+                                    alt="{{ variant['color'] }}">
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Quantity Input and Add to Cart button -->
+                        <div class="d-flex align-items-center mt-2 mb-3 px-3">
+                            <input type="number" id="quantity-{{ product['id'] }}" class="form-control me-2 quantity-input" value="1" min="1" style="width: 70px;">
+                            <a href="#" class="btn btn-primary add-to-cart-btn" id="add-to-cart-{{ product['id'] }}" data-variant-id="{{ product['variants'][0]['variant_id'] }}" data-product-id="{{ product['id'] }}">Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        <footer class="py-5 bg-black footer">
+            <div class="container">
+                <p class="text-center text-white m-0 small">&nbsp;Furniture Store © - Copyright&nbsp;2024</p>
+            </div>
+        </footer>
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="static/js/accessibility.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Function to store the original name for each product card
+            $('.card-title').each(function () {
+                const originalName = $(this).text();
+                $(this).attr('data-original-name', originalName);
+            });
+    
+            // Function to select the first variant for each product on page load
+            function initializeFirstVariants() {
+                $('.card').each(function () {
+                    let productId = $(this).attr('id').split('-')[1];
+                    let firstVariant = $(this).find('.color-swatch').first();
+    
+                    if (firstVariant.length > 0) {
+                        // Get relevant data from the first swatch
+                        let imagePath = firstVariant.data('image');
+                        let variantColor = firstVariant.attr('alt');
+                        let variantPrice = firstVariant.data('price');
+                        let variantDescription = firstVariant.data('description');
+                        let variantId = firstVariant.data('variant-id');
+    
+                        // Set the card details to the first variant
+                        $(this).find('.card-img-top').attr('src', imagePath);
+    
+                        // Append variant color to product name, using the original name stored as a data attribute
+                        let originalName = $(this).find('.card-title').attr('data-original-name');
+                        $(this).find('.card-title').text(`${originalName} - ${variantColor}`);
+    
+                        // Update product price
+                        $(this).find('.fw-bold').text(`$${variantPrice}`);
+    
+                        // Update product description
+                        $(this).find('.card-text').text(variantDescription);
+    
+                        // Update the Add to Cart button with the correct variant ID
+                        $(this).find('.add-to-cart-btn').data('variant-id', variantId);
+                    }
+                });
+            }
+    
+            // Initialize products to their first variant
+            initializeFirstVariants();
+    
+            // Event listener for selecting color swatch images
+            $('.color-swatch').on('click', function () {
+                // Get the relevant data from the clicked swatch
+                let productId = $(this).data('id');
+                let imagePath = $(this).data('image');
+                let variantColor = $(this).attr('alt'); // Using 'alt' to get the color information
+                let variantPrice = $(this).data('price');
+                let variantDescription = $(this).data('description');
+                let variantId = $(this).data('variant-id');
+    
+                // Find the product card container using productId
+                let productCard = $('#card-' + productId);
+    
+                if (productCard.length) {
+                    // Update the image of the product card with the new variant's image path
+                    productCard.find('.card-img-top').attr('src', imagePath);
+    
+                    // Append variant color to product name, using the original name stored as a data attribute
+                    let originalName = productCard.find('.card-title').attr('data-original-name');
+                    productCard.find('.card-title').text(`${originalName} - ${variantColor}`);
+    
+                    // Update product price
+                    productCard.find('.fw-bold').text(`$${variantPrice}`);
+    
+                    // Update product description
+                    productCard.find('.card-text').text(variantDescription);
+    
+                    // Update the Add to Cart button with the correct variant ID
+                    productCard.find('.add-to-cart-btn').data('variant-id', variantId);
+                }
+            });
+    
+           // Handle Add to Cart button click
+            $('.add-to-cart-btn').on('click', function (e) {
+                e.preventDefault();
+
+                // Get variant ID, product ID, and quantity
+                let variantId = $(this).data('variant-id');
+                let productId = $(this).data('product-id');
+                let quantity = $(`#quantity-${productId}`).val();
+
+                // Send AJAX request to add the product to the cart
+                $.ajax({
+                    url: '/add_to_cart',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        variantId: variantId,
+                        productId: productId,
+                        quantity: quantity
+                    }),
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            alert('Item successfully added to cart!');
+                            updateCartCount();
+                        } else {
+                            alert('Failed to add item to cart: ' + response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert('An error occurred while adding the item to the cart: ' + error);
+                    }
+                });
+            });
+
+            // Event Listener for Type filter
+            $('.type-filter').on('change', function () {
+                console.log("Type filter changed");
+                applyFiltersAndSort();
+            });
+
+            // Event Listener for Style filter
+            $('.style-filter').on('change', function () {
+                console.log("Style filter changed");
+                applyFiltersAndSort();
+            });
+
+            // Event Listener for Color filter
+            $('.color-filter').on('change', function () {
+                console.log("Color filter changed");  // Debug line
+                applyFiltersAndSort();
+            });
+
+            // Sorting Logic integration
+            $('.sort-option').on('click', function (e) {
+                e.preventDefault();
+                const sortType = $(this).data('sort');
+                sortProducts(sortType);
+                applyFiltersAndSort();  // Reapply filters after sorting
+            });
+
+            // Combined function to apply type, style, and color filters
+            function filterProducts() {
+                const selectedTypes = [];
+                $('.type-filter:checked').each(function () {
+                    selectedTypes.push($(this).val());
+                });
+
+                const selectedStyles = [];
+                $('.style-filter:checked').each(function () {
+                    selectedStyles.push($(this).val());
+                });
+
+                const selectedColors = [];
+                $('.color-filter:checked').each(function () {
+                    selectedColors.push($(this).val().toLowerCase());
+                });
+
+                // Show/hide products based on the selected types, styles, and colors
+                $('.product-item').each(function () {
+                    const productType = $(this).data('type');
+                    const productStyle = $(this).data('style');
+                    const productColors = $(this).data('colors').toLowerCase().split(',');
+
+                    // Check if product matches type, style, and color filters
+                    const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(productType);
+                    const styleMatch = selectedStyles.length === 0 || selectedStyles.includes(productStyle);
+                    const colorMatch = selectedColors.length === 0 || selectedColors.some(color => productColors.includes(color));
+
+                    if (typeMatch && styleMatch && colorMatch) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            }
+
+            // Combined function to apply filters and sorting
+            function applyFiltersAndSort() {
+                filterProducts();
+            }
+
+            // Function to sort products
+            function sortProducts(sortType) {
+                // Grab all product wrappers, instead of just the cards
+                let products = $('.product-item').toArray();
+
+                products.sort(function (a, b) {
+                    let contentA, contentB;
+
+                    if (sortType === 'name-asc' || sortType === 'name-desc') {
+                        contentA = $(a).find('.card-title').attr('data-original-name').toLowerCase();
+                        contentB = $(b).find('.card-title').attr('data-original-name').toLowerCase();
+                    } else {
+                        contentA = parseFloat($(a).find('.fw-bold').text().replace('$', ''));
+                        contentB = parseFloat($(b).find('.fw-bold').text().replace('$', ''));
+                    }
+
+                    if (sortType === 'name-asc' || sortType === 'price-asc') {
+                        return contentA > contentB ? 1 : -1;
+                    } else {
+                        return contentA < contentB ? 1 : -1;
+                    }
+                });
+
+                // Append sorted product wrappers back to the product grid container
+                $('.row.row-cols-1').empty().append(products);
+
+                // Reinitialize the event listeners on color swatches and add to cart buttons
+                initializeFirstVariants();
+                bindEventListeners();
+
+                // Apply filters again after sorting
+                applyFiltersAndSort();
+            }
+
+            // Initialize filtering with all checkboxes checked by default
+            applyFiltersAndSort();
+
+
+            // Function to rebind all event listeners after sorting
+            function bindEventListeners() {
+                $('.color-swatch').on('click', function () {
+                    // Get the relevant data from the clicked swatch
+                    let productId = $(this).data('id');
+                    let imagePath = $(this).data('image');
+                    let variantColor = $(this).attr('alt');
+                    let variantPrice = $(this).data('price');
+                    let variantDescription = $(this).data('description');
+                    let variantId = $(this).data('variant-id');
+    
+                    // Find the product card container using productId
+                    let productCard = $('#card-' + productId);
+    
+                    if (productCard.length) {
+                        // Update the image of the product card with the new variant's image path
+                        productCard.find('.card-img-top').attr('src', imagePath);
+    
+                        // Append variant color to product name, using the original name stored as a data attribute
+                        let originalName = productCard.find('.card-title').attr('data-original-name');
+                        productCard.find('.card-title').text(`${originalName} - ${variantColor}`);
+    
+                        // Update product price
+                        productCard.find('.fw-bold').text(`$${variantPrice}`);
+    
+                        // Update product description
+                        productCard.find('.card-text').text(variantDescription);
+    
+                        // Update the Add to Cart button with the correct variant ID
+                        productCard.find('.add-to-cart-btn').data('variant-id', variantId);
+                    }
+                });
+            }
+        });
+
+        function updateCartCount() {
+            $.get('/cart_count', function(response) {
+                if (response.success) {
+                    $('.cart-count').text(response.count);
+                }
+            });
+        }
+    </script>    
+</body>
+
+</html>

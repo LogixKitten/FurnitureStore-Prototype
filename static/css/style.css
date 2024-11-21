@@ -1,0 +1,58 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content {
+    flex: 1;
+}
+
+.footer {
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    margin-top: auto;
+}
+
+.color-swatch {
+    width: calc(5vw + 25px); /* Width scales with viewport but is bounded to keep it reasonable */
+    max-width: 50px; /* Maximum width will be 50px */
+    min-width: 25px; /* Minimum width to avoid shrinking too small */
+    
+    height: calc(5vw + 25px); /* Height matches width to keep it a square */
+    max-height: 50px;
+    min-height: 25px;
+  
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    object-fit: cover;
+  }
+  
+  .color-swatch:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+  }
+  
+  .available-colors {
+    display: flex;
+    margin-bottom: 15px;
+    flex-wrap: wrap; /* Ensures that swatches wrap when there isn’t enough room */
+  }
+
+  .text-size-regular {
+    font-size: 16px;
+  }
+  
+  .text-size-larger {
+    font-size: 20px;
+  }
+  

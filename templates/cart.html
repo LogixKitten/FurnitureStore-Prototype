@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Furniture Store</title>    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i&amp;display=swap">    
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/styles.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body data-authenticated="{{ current_user.is_authenticated }}">
+    <div class="wrapper">
+        <header style="margin-bottom: 80px;">
+
+            <!-- Accessibility Options Modal -->
+            <div class="modal fade" id="accessibilityModal" tabindex="-1" aria-labelledby="accessibilityModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="accessibilityModalLabel">Accessibility Options</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="high-contrast-checkbox">
+                                <label class="form-check-label" for="high-contrast-checkbox">High Contrast (Dark Mode)</label>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="textSize">Text Size:</label><br>
+                                <input type="radio" name="text-size" value="regular" id="textSizeRegular" checked>
+                                <label for="textSizeRegular">Regular</label><br>
+                                <input type="radio" name="text-size" value="larger" id="textSizeLarger">
+                                <label for="textSizeLarger">Larger</label>
+                            </div>
+                        </div>                    
+                    </div>
+                </div>
+            </div>
+
+            <nav class="navbar navbar-expand-lg fixed-top bg-dark navbar-custom navbar-dark">
+                <div class="container-fluid">
+                    {% if current_user.is_authenticated %}
+                        <a class="navbar-brand" href="{{ url_for('browse') }}">Furniture Shop</a>
+                    {% else %}
+                        <a class="navbar-brand" href="{{ url_for('home') }}">Furniture Shop</a>
+                    {% endif %}                    
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                        <ul class="navbar-nav ml-auto">
+                            {% if current_user.is_authenticated %}
+                                <li class="nav-item">
+                                    <p class="text-white mb-3"> Welcome, {{ current_user.username }}! </p>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link" id="accessibility-btn" data-bs-toggle="modal" data-bs-target="#accessibilityModal">Accessibility Options</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('browse') }}">Browse</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('account') }}">Account</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('cart') }}">
+                                        <span class="cart-icon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                            <span class="cart-count">{{ cart_count }}</span>
+                                        </span>
+                                    </a>
+                                </li>                                                                
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('signup') }}">Sign Up</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('login') }}">Log In</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <section class="content">
+            <div>
+                <h2>Your Cart</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if cart_items %}
+                        {% for item in cart_items %}
+                        <tr data-item-id="{{ item.cart_id }}">
+                            <td>{{ item.name }}</td>
+                            <td>
+                                <input type="number" class="quantity-input" data-cart-item-id="{{ item.cart_id }}" value="{{ item.quantity }}" min="1" style="width: 60px;">
+                            </td>
+                            <td>${{ item.price }}</td>
+                            <td>${{ item.price * item.quantity }}</td>
+                            <td>
+                                <button class="btn btn-danger remove-item-btn" data-cart-item-id="{{ item.cart_id }}">Remove</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="5">Your cart is empty.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" style="text-align: right;"><strong>Total:</strong></td>
+                            <td><strong>${{ cart_total }} + tax</strong></td>
+                            <td>
+                                <a href="{{ url_for('checkout') }}" class="btn btn-primary">Checkout</a>
+                            </td>
+                        </tr>                        
+                    </tfoot>
+                </table>
+            </div>
+        </section>        
+        <footer class="py-5 bg-black footer">
+            <div class="container">
+                <p class="text-center text-white m-0 small">&nbsp;Furniture Store © - Copyright&nbsp;2024</p>
+            </div>
+        </footer>
+    </div>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script src="static/js/accessibility.js"></script>
+    <script>
+        // Handle quantity update
+        $('.quantity-input').on('change', function () {
+            let productId = $(this).data('product-id');  // Updated variable name for consistency
+            let newQuantity = $(this).val();
+    
+            $.ajax({
+                url: '/update_cart',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ product_id: productId, quantity: newQuantity }),  // Use correct keys as per the API
+                success: function (response) {
+                    if (response.success) {
+                        alert('Cart updated successfully');
+                        updateCartCount();  // Update cart count in the navbar
+                        location.reload();  // Refresh to show updated quantities and totals
+                    } else {
+                        alert('Failed to update cart: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('An error occurred while updating the cart.');
+                }
+            });
+        });
+    
+        // Handle item removal
+        $('.remove-item-btn').on('click', function () {
+            let productId = $(this).data('product-id');  // Updated variable name for consistency
+    
+            $.ajax({
+                url: '/remove_from_cart',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ product_id: productId }),  // Use correct keys as per the API
+                success: function (response) {
+                    if (response.success) {
+                        alert('Item removed from cart');
+                        updateCartCount();  // Update cart count in the navbar
+                        location.reload();  // Refresh the page to remove item from view
+                    } else {
+                        alert('Failed to remove item: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('An error occurred while removing the item from the cart.');
+                }
+            });
+        });
+
+        function updateCartCount() {
+            $.get('/cart_count', function(response) {
+                if (response.success) {
+                    $('.cart-count').text(response.count);
+                }
+            });
+        }
+    </script>    
+</body>
+
+</html>
