@@ -374,18 +374,15 @@
                     productCard.find('.add-to-cart-btn').data('variant-id', variantId);
                 }
             });
-            
-            $(document).on('click', '.add-to-cart-btn', function(e) {
-            // Handle Add to Cart button click
-                $('.add-to-cart-btn').on('click', function (e) {
+                       
+            function attachAddToCartListeners() {
+                $('.add-to-cart-btn').off('click').on('click', function(e) {
                     e.preventDefault();
+                    const variantId = $(this).data('variant-id');
+                    const productId = $(this).data('product-id');
+                    const quantity = $(`#quantity-${productId}`).val();
 
-                    // Get variant ID, product ID, and quantity
-                    let variantId = $(this).data('variant-id');
-                    let productId = $(this).data('product-id');
-                    let quantity = $(`#quantity-${productId}`).val();
-
-                    // Send AJAX request to add the product to the cart
+                    // Make AJAX request to add product to cart
                     $.ajax({
                         url: '/add_to_cart',
                         type: 'POST',
@@ -396,20 +393,25 @@
                             quantity: quantity
                         }),
                         dataType: 'json',
-                        success: function (response) {
+                        success: function(response) {
                             if (response.success) {
                                 alert('Item successfully added to cart!');
+                                console.log(data);
                                 updateCartCount();
                             } else {
                                 alert('Failed to add item to cart: ' + response.message);
                             }
                         },
-                        error: function (xhr, status, error) {
+                        error: function(xhr, status, error) {
                             alert('An error occurred while adding the item to the cart: ' + error);
                         }
                     });
                 });
-            });
+            }
+
+            // Call this function initially to attach listeners
+            attachAddToCartListeners();
+
             // Event Listener for Type filter
             $('.type-filter').on('change', function () {
                 console.log("Type filter changed");
@@ -434,6 +436,7 @@
                 const sortType = $(this).data('sort');
                 sortProducts(sortType);
                 applyFiltersAndSort();  // Reapply filters after sorting
+                attachAddToCartListeners();
             });
 
             // Combined function to apply type, style, and color filters

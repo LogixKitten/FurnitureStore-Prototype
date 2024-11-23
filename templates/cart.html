@@ -111,12 +111,12 @@
                         <tr data-item-id="{{ item.cart_id }}">
                             <td>{{ item.name }}</td>
                             <td>
-                                <input type="number" class="quantity-input" data-cart-item-id="{{ item.cart_id }}" value="{{ item.quantity }}" min="1" style="width: 60px;">
+                                <input type="number" class="quantity-input" data-cart-item-id="{{ item.cart_id }}" data-product-id="{{ item.product_id }}" value="{{ item.quantity }}" min="1" style="width: 60px;">
                             </td>
                             <td>${{ item.price }}</td>
                             <td>${{ item.price * item.quantity }}</td>
                             <td>
-                                <button class="btn btn-danger remove-item-btn" data-cart-item-id="{{ item.cart_id }}">Remove</button>
+                                <button class="btn btn-danger remove-item-btn" data-cart-item-id="{{ item.cart_id }}" data-product-id="{{ item.product_id }}">Remove</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -149,21 +149,21 @@
     <script>
         // Handle quantity update
         $('.quantity-input').on('change', function () {
-            let productId = $(this).data('variant_id');  // Updated variable name for consistency
+            let productId = $(this).data('product-id');  // Updated variable name for consistency
             let newQuantity = $(this).val();
     
             $.ajax({
                 url: '/update_cart',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ product_id: productId, quantity: newQuantity }),  // Use correct keys as per the API
+                data: JSON.stringify({ product_id: productId, quantity: newQuantity }),                
                 success: function (response) {
-                    if (response.success) {
+                    if (response.success) {                        
                         alert('Cart updated successfully');
                         updateCartCount();  // Update cart count in the navbar
                         location.reload();  // Refresh to show updated quantities and totals
-                    } else {
-                        alert('Failed to update cart: ' + response.message);
+                    } else {                        
+                        alert('Failed to update cart: The product_id was ' + productId);                        
                     }
                 },
                 error: function () {
@@ -174,8 +174,8 @@
     
         // Handle item removal
         $('.remove-item-btn').on('click', function () {
-            let productId = $(this).data('variant_id');  // Updated variable name for consistency
-    
+            let productId = $(this).data('product-id');  // Updated variable name for consistency
+                        
             $.ajax({
                 url: '/remove_from_cart',
                 method: 'POST',

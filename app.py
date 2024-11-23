@@ -304,6 +304,7 @@ def update_cart():
     try:
         # Get the data from the AJAX request
         data = request.get_json()
+        print(data)
 
         # Extract the cart information
         product_id = data['product_id']
@@ -336,6 +337,8 @@ def remove_from_cart():
     try:
         # Get the data from the AJAX request
         data = request.get_json()
+        print(data)
+        print(current_user.id)
 
         # Extract the product ID to be removed
         product_id = data['product_id']
