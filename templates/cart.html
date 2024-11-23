@@ -131,16 +131,19 @@
                             <td colspan="4" style="text-align: right;"><strong>Total:</strong></td>
                             <td><strong>${{ cart_total }} + tax</strong></td>
                             <td>
-                                <a href="{{ url_for('checkout') }}" class="btn btn-primary">Checkout</a>
+                                <a href="{{ url_for('checkout') }}" class="btn btn-primary" title="This button is part of a prototype. No actual purchase will be made.">Checkout</a>
                             </td>
                         </tr>                        
                     </tfoot>
                 </table>
             </div>
+            <br>
         </section>        
         <footer class="py-5 bg-black footer">
             <div class="container">
                 <p class="text-center text-white m-0 small">&nbsp;Furniture Store © - Copyright&nbsp;2024</p>
+                <hr>
+                This site is a student prototype project created for educational purposes only.
             </div>
         </footer>
     </div>
