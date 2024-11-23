@@ -149,7 +149,7 @@
     <script>
         // Handle quantity update
         $('.quantity-input').on('change', function () {
-            let productId = $(this).data('product-id');  // Updated variable name for consistency
+            let productId = $(this).data('variant_id');  // Updated variable name for consistency
             let newQuantity = $(this).val();
     
             $.ajax({
@@ -174,7 +174,7 @@
     
         // Handle item removal
         $('.remove-item-btn').on('click', function () {
-            let productId = $(this).data('product-id');  // Updated variable name for consistency
+            let productId = $(this).data('variant_id');  // Updated variable name for consistency
     
             $.ajax({
                 url: '/remove_from_cart',
