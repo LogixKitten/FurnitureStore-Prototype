@@ -374,41 +374,42 @@
                     productCard.find('.add-to-cart-btn').data('variant-id', variantId);
                 }
             });
-    
-           // Handle Add to Cart button click
-            $('.add-to-cart-btn').on('click', function (e) {
-                e.preventDefault();
+            
+            $(document).on('click', '.add-to-cart-btn', function(e) {
+            // Handle Add to Cart button click
+                $('.add-to-cart-btn').on('click', function (e) {
+                    e.preventDefault();
 
-                // Get variant ID, product ID, and quantity
-                let variantId = $(this).data('variant-id');
-                let productId = $(this).data('product-id');
-                let quantity = $(`#quantity-${productId}`).val();
+                    // Get variant ID, product ID, and quantity
+                    let variantId = $(this).data('variant-id');
+                    let productId = $(this).data('product-id');
+                    let quantity = $(`#quantity-${productId}`).val();
 
-                // Send AJAX request to add the product to the cart
-                $.ajax({
-                    url: '/add_to_cart',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        variantId: variantId,
-                        productId: productId,
-                        quantity: quantity
-                    }),
-                    dataType: 'json',
-                    success: function (response) {
-                        if (response.success) {
-                            alert('Item successfully added to cart!');
-                            updateCartCount();
-                        } else {
-                            alert('Failed to add item to cart: ' + response.message);
+                    // Send AJAX request to add the product to the cart
+                    $.ajax({
+                        url: '/add_to_cart',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            variantId: variantId,
+                            productId: productId,
+                            quantity: quantity
+                        }),
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.success) {
+                                alert('Item successfully added to cart!');
+                                updateCartCount();
+                            } else {
+                                alert('Failed to add item to cart: ' + response.message);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            alert('An error occurred while adding the item to the cart: ' + error);
                         }
-                    },
-                    error: function (xhr, status, error) {
-                        alert('An error occurred while adding the item to the cart: ' + error);
-                    }
+                    });
                 });
             });
-
             // Event Listener for Type filter
             $('.type-filter').on('change', function () {
                 console.log("Type filter changed");
